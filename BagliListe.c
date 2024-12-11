@@ -1,96 +1,164 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Hamza Gunes - 05/12/2024 - Linked List
+// Hamza Gunes - 05/12/2024 - Linked List.
 
-//Bagli listeler, bellegi dinamik ayirmak icin kullanilir. Her dugum bir anahtar deger, bir de sonraki dugumu isaret edecek pointer icerir.
-
-
-
-struct liste{
-	
-	int anahtar;
-	struct liste *ileri;
-	
+struct list {
+    int key;
+    struct list *next;
 };
 
-
-
-
-struct liste* DugumOlustur(int anahtar){
+struct list* CreateNode(int key) {
 	
-	struct liste *YeniDugum = (struct liste*)malloc(sizeof(struct liste));
+    struct list *NewNode = (struct list*)malloc(sizeof(struct list));
+
+    if (NewNode == NULL) {
+        printf("Node Creation Error");
+        exit(1);
+    }
+
+    NewNode->key = key;
+    NewNode->next = NULL;
+
+    return NewNode;
+}
+
+void PrintLinkedList(struct list *root) {
 	
-	if (YeniDugum == NULL){
+    struct list *iter = root;
+
+    while (iter != NULL) {
+        printf("%d\n", iter->key);
+        iter = iter->next;
+    }
+}
+
+void AddToEnd(struct list **root, int key) {
+	
+    struct list *iter = *root;
+
+    while (iter->next != NULL) {
+        iter = iter->next;
+    }
+
+    iter->next = CreateNode(key);
+}
+
+void AddToHead(struct list **root, int key){
+			
+	struct list *NewNode = CreateNode(key);
+	
+	NewNode->next = *root;
+	*root = NewNode;	
+}
+
+void DeleteFromEnd(struct list **root){
 		
-		printf("Dugum Olusturulamadi");
+	struct list *iter = *root;
+	
+	if (iter->next == NULL){
+		printf("You Can't Delete Root...\n");
 		exit(1);
 	}
 	
-	YeniDugum->anahtar = anahtar;
-	YeniDugum->ileri = NULL;
+	struct list *temp = iter;
 	
-}
-
-
-
-
-void ListeYazdir(struct liste *kok){
-	
-	
-	if (kok->ileri == NULL) printf("%d",kok->anahtar);  //Sadece kok varsa koku yazdirir.
-	
+	while (iter->next != NULL){
 		
-	struct liste *gezgin = kok;
-	
-	while(gezgin != NULL){
-		
-		
-		printf("%d\n",gezgin->anahtar);
-		gezgin = gezgin->ileri;
-		
-		
-	}
-	
-	
-}
-
-
-
-
-void ListeninSonunaEkle(struct liste **kok, int anahtar){
-	
-	struct liste *gezgin = *kok;
-	
-	while(gezgin->ileri != NULL){
-		
-		gezgin = gezgin->ileri;
-		
-	}
-	
-	
-	gezgin->ileri = DugumOlustur(anahtar);
-		
-	
-}
-
-
-
-
-
-int main(){
-	
-	
-	struct liste *kok = DugumOlustur(10);
-	
-	ListeninSonunaEkle(&kok,20);
-	ListeninSonunaEkle(&kok,30);
-	ListeninSonunaEkle(&kok,40);
-	
-	
-	ListeYazdir(kok);
-	
+		temp = iter;
+		iter = iter->next;
 			
+	}
 	
+	free(iter);
+	temp->next = NULL;
+}
+
+void DeleteFromHead(struct list **root){
 	
+	struct list *temp = *root;
+	
+	if (temp->next == NULL){
+		printf("You Can't Delete Root...\n");
+		exit(1);
+	}
+	
+	*root = temp->next;
+	free(temp);
+}
+
+void AddNodeAfterKey(struct list **root, int key, int key2){
+	
+	struct list *iter = *root;
+	
+	while(iter != NULL && iter->key != key){
+		
+		iter = iter->next;		
+	}
+	
+	if(iter == NULL){
+		
+		printf("Key not found\n");
+		exit(1);
+	}
+	
+	struct list *NewNode = CreateNode(key2);
+	NewNode->next = iter->next;
+	iter->next = NewNode;		
+}
+
+void DeleteNodeWithKey(struct list **root, int key){
+	
+	struct list *iter = *root;
+	
+	if(iter->next == NULL && iter->key == key){
+		printf("You Can't Delete Node...\n");
+		exit(1);
+	}
+	
+	struct list *temp = iter;
+	
+	while(iter != NULL && iter->key != key){
+		
+		temp = iter;
+		iter = iter->next;
+	}
+	
+	if(iter == NULL){
+		printf("Key not found...\n");
+		exit(1);
+	}
+	
+	temp->next = iter->next;
+	free(iter);
+}
+
+int main() {
+	
+    struct list *root = CreateNode(10);
+
+	AddToHead(&root, 0);
+    AddToEnd(&root, 20);
+    AddToEnd(&root, 30);
+    AddToEnd(&root, 40);
+    AddToEnd(&root, 50);
+    AddToEnd(&root, 60);
+    AddToEnd(&root, 70);
+    AddToEnd(&root, 80);
+    AddToEnd(&root, 90);
+    AddToEnd(&root, 100);
+    
+    
+    printf("------List------\n");
+    PrintLinkedList(root);
+    
+    printf("\n------New List------\n");
+   	DeleteFromEnd(&root);
+   	DeleteFromHead(&root);
+   	AddNodeAfterKey(&root, 50, 55);
+   	DeleteNodeWithKey(&root, 70);
+   	  
+    PrintLinkedList(root);
+
+    return 0;
 }
